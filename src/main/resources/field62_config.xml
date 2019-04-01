@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- <!DOCTYPE j8583-config PUBLIC "-//J8583//DTD CONFIG 1.0//EN"
+	"http://j8583.sourceforge.net/j8583.dtd"> -->
+<!DOCTYPE j8583-config SYSTEM "j8583.dtd">
+<j8583-config>
+
+ <parse type="0062">
+	<field num="1" type="ALPHA" length="1" ></field>
+	<field num="2" type="NUMERIC" length="15" ></field>
+	<field num="3" type="ALPHA" length="4" ></field>
+	<field num="4" type="ALPHA" length="1" ></field>
+	<field num="5" type="NUMERIC" length="2" ></field>
+	<field num="6" type="ALPHA" length="1" ></field>
+	<field num="7" type="ALPHA" length="26" ></field>
+	<field num="8" type="NUMERIC" length="6" ></field>
+	<field num="9" type="ALPHA" length="1" ></field>
+	<field num="10" type="NUMERIC" length="6" ></field>
+	<field num="11" type="NUMERIC" length="2" ></field>
+	<field num="12" type="NUMERIC" length="2" ></field>
+	<field num="13" type="ALPHA" length="1" ></field>
+	<field num="14" type="NUMERIC" length="12" ></field>
+	<field num="15" type="ALPHA" length="1" ></field>
+	<field num="16" type="ALPHA" length="2" ></field>
+	<field num="17" type="ALPHA" length="15" ></field>
+	<field num="18" type="ALPHA" length="1"></field>
+	<field num="19" type="ALPHA" length="2"></field>
+	<field num="20" type="NUMERIC" length="10" ></field>
+	<field num="21" type="ALPHA" length="4" ></field>
+	<field num="22" type="ALPHA" length="6" ></field>
+	<field num="23" type="ALPHA" length="2" ></field>
+	<field num="24" type="ALPHA" length="6" ></field>
+</parse>
+
+</j8583-config>

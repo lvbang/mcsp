@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- <!DOCTYPE j8583-config PUBLIC "-//J8583//DTD CONFIG 1.0//EN"
+	"http://j8583.sourceforge.net/j8583.dtd"> -->
+<!DOCTYPE j8583-config SYSTEM "j8583.dtd">
+<header-config>
+<!-- visa报文头 -->
+ <parse type="1111">
+	<field num="1" type="BINARY" length="1" ></field>
+	<field num="2" type="BINARY" length="1" ></field>
+	<field num="3" type="BINARY" length="1" ></field>
+	<field num="4" type="BINARY" length="2" ></field>
+	<field num="5" type="NUMERIC" length="6" ></field>
+	<field num="6" type="NUMERIC" length="6" ></field>
+	<field num="7" type="BINARY" length="1" ></field>
+	<field num="8" type="BINARY" length="2" ></field>
+	<field num="9" type="BINARY" length="3" ></field>
+	<field num="10" type="BINARY" length="1" ></field>
+	<field num="11" type="BINARY" length="3" ></field>
+	<field num="12" type="BINARY" length="1" ></field>
+	<field num="13" type="BINARY" length="2" ></field>
+	<field num="14" type="BINARY" length="2" ></field>
+</parse>
+
+<template type="1111">
+	<field num="1" type="BINARY" length="1" ></field>
+	<field num="2" type="BINARY" length="1" ></field>
+	<field num="3" type="BINARY" length="1" ></field>
+	<field num="4" type="BINARY" length="2" ></field>
+	<field num="5" type="NUMERIC" length="6" ></field>
+	<field num="6" type="NUMERIC" length="6" ></field>
+	<field num="7" type="BINARY" length="1" ></field>
+	<field num="8" type="BINARY" length="2" ></field>
+	<field num="9" type="BINARY" length="3" ></field>
+	<field num="10" type="BINARY" length="1" ></field>
+	<field num="11" type="BINARY" length="3" ></field>
+	<field num="12" type="BINARY" length="1" ></field>
+	<field num="13" type="BINARY" length="2" ></field>
+	<field num="14" type="BINARY" length="2" ></field>
+</template>
+
+<!--银联报文头  -->
+<parse type="2222">
+	<field num="1" type="BINARY" length="1" ></field>
+	<field num="2" type="BINARY" length="1" ></field>
+	<field num="3" type="NUMERIC" length="4" ></field>
+	<field num="4" type="ALPHA" length="11" ></field>
+	<field num="5" type="ALPHA" length="11" ></field>
+	<field num="6" type="BINARY" length="3" ></field>
+	<field num="7" type="BINARY" length="1" ></field>
+	<field num="8" type="ALPHA" length="8" ></field>
+	<field num="9" type="BINARY" length="1" ></field>
+	<field num="10" type="NUMERIC" length="5" ></field>
+</parse>
+
+<template type="2222">
+	<field num="1" type="BINARY" length="1" ></field>
+	<field num="2" type="BINARY" length="1" ></field>
+	<field num="3" type="NUMERIC" length="4" ></field>
+	<field num="4" type="ALPHA" length="11" ></field>
+	<field num="5" type="ALPHA" length="11" ></field>
+	<field num="6" type="BINARY" length="3" ></field>
+	<field num="7" type="BINARY" length="1" ></field>
+	<field num="8" type="ALPHA" length="8" ></field>
+	<field num="9" type="BINARY" length="1" ></field>
+	<field num="10" type="NUMERIC" length="5" ></field>
+</template>
+
+</header-config>

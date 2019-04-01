@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+     http://www.springframework.org/schema/rabbit
+     http://www.springframework.org/schema/rabbit/spring-rabbit-1.0.xsd">
+
+
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">  
+        <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />  
+        <property name="ignoreResourceNotFound" value="true" />  
+        <property name="locations">  
+            <list>  
+                <!-- rabbitmq配置 -->  
+                <value>mq.properties</value>  
+            </list>  
+        </property>  
+    </bean>
+
+    <!-- 配置连接 -->
+    <rabbit:connection-factory id="connectionFactory"  channel-cache-size="2"
+                               host="${mq.host}" password="${mq.password}" username="${mq.username}"
+                               virtual-host="${mq.virtualHost}" port="${mq.port}"/>
+
+    <!--配置消息模板，用于发送和接收消息，exchange 会根据routing-key 的配置，发送到指定的队列中 -->
+    <rabbit:template exchange="VISAExchange" id="amqpTemplateVisa"  connection-factory="connectionFactory" 
+			 routing-key="VISA_Request"/>
+
+    <!-- RabbitAdmin 代理,自动声明queue,exchanges和绑定 -->
+    <rabbit:admin connection-factory="connectionFactory" />
+
+    <!-- 配置队列，如果不指定出队列名称,则队列名称默认为：""，也是临时队列 -->
+    <rabbit:queue id="Q1" name="${mq.queue}" durable="true" auto-delete="false" exclusive="false" />
+   
+    <!-- 交换机声明 -->
+    <rabbit:direct-exchange name="VISAExchange" durable="true" auto-delete="false" id="amqpExchangeVisa">
+        <rabbit:bindings>
+            <!-- 指定绑定队列及routing key -->
+            <rabbit:binding queue="Q1"  key="VISA_Request"/>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+
+    <!-- 声明主题交换机 -->
+    <!--<rabbit:topic-exchange name="myExchange">-->
+        <!--<rabbit:bindings>-->
+            <!--<rabbit:binding queue="topic-queue" pattern="foo.*"/>-->
+        <!--</rabbit:bindings>-->
+    <!--</rabbit:topic-exchange>-->
+
+</beans>
+

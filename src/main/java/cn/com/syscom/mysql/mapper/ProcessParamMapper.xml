@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.syscom.mysql.mapper.ProcessParamMapper">
+  <resultMap id="BaseResultMap" type="cn.com.syscom.mysql.model.ProcessParam">
+    <id column="interface_id" jdbcType="INTEGER" property="interfaceId" />
+    <result column="institution_Num" jdbcType="VARCHAR" property="institutionNum" />
+    <result column="swtichType_VISA" jdbcType="VARCHAR" property="swtichtypeVisa" />
+    <result column="reportingName_VISA" jdbcType="VARCHAR" property="reportingnameVisa" />
+    <result column="sic_Code" jdbcType="VARCHAR" property="sicCode" />
+    <result column="currency_Code" jdbcType="VARCHAR" property="currencyCode" />
+    <result column="defaultTerm_Num" jdbcType="VARCHAR" property="defaulttermNum" />
+    <result column="preauth_Type" jdbcType="INTEGER" property="preauthType" />
+    <result column="preauth_Num" jdbcType="INTEGER" property="preauthNum" />
+    <result column="message_Duration" jdbcType="INTEGER" property="messageDuration" />
+    <result column="max_Timeout" jdbcType="INTEGER" property="maxTimeout" />
+    <result column="report_Time" jdbcType="INTEGER" property="reportTime" />
+    <result column="max_ProcessingTime" jdbcType="INTEGER" property="maxProcessingtime" />
+    <result column="max_ResendNum" jdbcType="INTEGER" property="maxResendnum" />
+    <result column="auto_signon" jdbcType="VARCHAR" property="autoSignon" />
+  </resultMap>
+  <select id="selectSignonByInterfaceId" parameterType="java.lang.Integer"  resultType="java.lang.String">
+    select 
+  	auto_signon
+    from base_info
+    where interface_id = #{interfaceId,jdbcType=INTEGER}
+  </select>
+   <sql id="Base_Column_List">
+    interface_id, institution_Num, swtichType_VISA, reportingName_VISA, sic_Code, currency_Code, 
+    defaultTerm_Num, preauth_Type, preauth_Num, message_Duration, max_Timeout, report_Time, 
+    max_ProcessingTime, max_ResendNum, auto_signon
+  </sql>
+  <select id="selectByByInterfaceId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from base_info
+    where interface_id = #{interfaceId,jdbcType=INTEGER}
+  </select>
+  
+  
+</mapper>

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context-3.0.xsd
+    http://www.springframework.org/schema/rabbit
+    http://www.springframework.org/schema/rabbit/spring-rabbit-1.0.xsd" >
+    
+    <description>rabbitmq 连接服务配置</description>
+
+    <rabbit:connection-factory id="connectionFactory" host="${mq.host}" username="${mq.username}" password="${mq.password}" 
+    						   port="${mq.port}" virtual-host="${mq.virtualHost}" channel-cache-size="5" />  						   
+
+<!--     <bean id="rabbitConnectionFactory" class="com.rabbitmq.client.ConnectionFactory">  
+        <property name="host" value="${mq.host}" />
+        <property name="port" value="${mq.port}" />
+        <property name="username" value="${mq.username}" />
+        <property name="password" value="${mq.password}" />
+        <property name="virtualHost" value="${mq.vhost}" />
+    </bean>  
+  
+    <bean id="connectionFactory" class="org.springframework.amqp.rabbit.connection.CachingConnectionFactory">  
+        <constructor-arg ref="rabbitConnectionFactory" />  
+        <property name="channelCacheSize" value="25" />  
+        <property name="executor" ref="taskExecutor" />  
+    </bean> -->
+    <rabbit:admin connection-factory="connectionFactory" />
+    <!-- spring template声明-->
+    <rabbit:template exchange="VISAExchange" id="amqpTemplateVisa"  connection-factory="connectionFactory" />
+   	<rabbit:template exchange="VISAExchange" id="amqpTemplateVisaToESB"  connection-factory="connectionFactory" />
+    <rabbit:template exchange="ESBExchange" id="amqpTemplateEsb"  connection-factory="connectionFactory" />
+	<rabbit:template exchange="ex.trans.monit" id="amqpTemplateMonit"  connection-factory="connectionFactory" />
+	
+	<rabbit:template exchange="LogInfoExchange" id="amqpTemplateLog"  connection-factory="connectionFactory" />
+	
+	<rabbit:template exchange="FileMaintExchange" id="amqpTemplateFileMaint"  connection-factory="connectionFactory" />
+	
+    <!--申明queue-->
+    <rabbit:queue id="Q1" name="VISARqstQueue" durable="true" auto-delete="false" exclusive="false" />
+    <rabbit:queue id="Q2" name="VISAToESBQueue" durable="true" auto-delete="false" exclusive="false" />
+    <rabbit:queue id="Q3" name="ESBRqstQueue" durable="true" auto-delete="false" exclusive="false" />
+    <rabbit:queue id="Q4" name="ESBRespQueue" durable="true" auto-delete="false" exclusive="false" />
+    <rabbit:queue id="Q5" name="ESBToVISAQueue" durable="true" auto-delete="false" exclusive="false" />
+    <rabbit:queue id="Q7" name="VISARespQueue" durable="true" auto-delete="false" exclusive="false" />
+    <rabbit:queue id="trans.monit.queue" name="trans.monit.queue" durable="false" auto-delete="false" exclusive="false" />
+    <rabbit:queue id="VisaLogInfoQueue" name="VisaLogInfoQueue" durable="true" auto-delete="false" exclusive="false" />
+    <rabbit:queue id="VisaLogInfoReplyQueue" name="VisaLogInfoReplyQueue" durable="true" auto-delete="false" exclusive="false" />
+    <rabbit:queue id="FileMaintQueue" name="FileMaintQueue" durable="true" auto-delete="false" exclusive="false" />
+    
+    <!--申明exchange交换机并绑定queue-->
+    <rabbit:direct-exchange name="VISAExchange" durable="true" auto-delete="false" id="amqpExchangeVisa">
+        <rabbit:bindings>
+            <rabbit:binding queue="Q1" key="VISA_Request" />
+            <rabbit:binding queue="Q7" key="VISA_Response" />
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+
+    <!--申明exchange交换机并绑定queue-->
+    <rabbit:direct-exchange name="VISAExchange" durable="true" auto-delete="false" id="amqpExchangeVisaToESB">
+        <rabbit:bindings>
+            <rabbit:binding queue="Q2" key="VISAToESB" />
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+    
+    <rabbit:direct-exchange name="ESBExchange" durable="true" auto-delete="false" id="amqpExchangeEsb">
+        <rabbit:bindings>
+            <rabbit:binding queue="Q3" key="ESB_Request" />
+            <rabbit:binding queue="Q4" key="ESB_Response" />
+            <rabbit:binding queue="Q5" key="ESBToVISA" />
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+    
+	<!--     交易监控交换机 -->
+    <rabbit:direct-exchange name="ex.trans.monit" durable="false" auto-delete="false" id="amqpExchangeMonit">
+        <rabbit:bindings>
+            <rabbit:binding queue="trans.monit.queue" key="key" />
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+    
+     <rabbit:direct-exchange name="LogInfoExchange" durable="true" auto-delete="false" id="LogInfoExchange">
+        <rabbit:bindings>
+            <rabbit:binding queue="VisaLogInfoQueue" key="visa.req" />
+            <rabbit:binding queue="VisaLogInfoReplyQueue" key="visa.rep" />
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+    
+     <rabbit:direct-exchange name="FileMaintExchange" durable="true" auto-delete="false" id="FileMaintExchange">
+        <rabbit:bindings>
+            <rabbit:binding queue="FileMaintQueue" key="FileMaint" />
+        </rabbit:bindings>
+    </rabbit:direct-exchange>    
+    <!--consumer配置监听-->
+   <bean id="Q1_Consumer" class="cn.com.syscom.inter.visainterface.VisaConsumerQFirst" />
+   <bean id="Q2_Consumer" class="cn.com.syscom.inter.esbinterface.EsbConsumerQSecond" />
+   <bean id="Q3_Consumer" class="cn.com.syscom.inter.esbinterface.EsbTcpipQThird" />
+   <bean id="Q4_Consumer" class="cn.com.syscom.inter.esbinterface.EsbConsumerQFourth" />
+   <bean id="Q5_Consumer" class="cn.com.syscom.inter.visainterface.VisaConsumerQFifth" />
+   <bean id="Loginfo_Consumer" class="cn.com.syscom.inter.visainterface.LogInfoConsumer" />
+   <bean id="FileMaint_Consumer" class="cn.com.syscom.inter.visainterface.FileMaintConsumer" />
+<!--    <bean id="Q7_Consumer" class="cn.com.syscom.inter.visainterface.VisaConsumerQSeventh" /> -->
+   
+   <!-- concurrency="2" prefetch="3" -->
+ 	<rabbit:listener-container id ="messageListenerContainer" connection-factory="connectionFactory" acknowledge="manual" concurrency="10" prefetch="10">
+        <rabbit:listener queues="Q1" ref="Q1_Consumer" />
+        <rabbit:listener queues="Q2" ref="Q2_Consumer"/>
+        <rabbit:listener queues="Q3" ref="Q3_Consumer"/>
+        <rabbit:listener queues="Q4" ref="Q4_Consumer"/>
+        <rabbit:listener queues="Q5" ref="Q5_Consumer"/>
+<!--         <rabbit:listener queues="Q7" ref="Q7_Consumer"/> -->
+        <rabbit:listener queues="VisaLogInfoQueue" ref="Loginfo_Consumer"/>
+        <rabbit:listener queues="FileMaintQueue" ref="FileMaint_Consumer"/>
+    </rabbit:listener-container>
+   
+</beans>

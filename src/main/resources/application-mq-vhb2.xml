@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context-3.0.xsd
+    http://www.springframework.org/schema/rabbit
+    http://www.springframework.org/schema/rabbit/spring-rabbit-1.0.xsd" >
+    
+    <description>rabbitmq 连接服务配置</description>
+
+    <rabbit:connection-factory id="connectionFactoryVHB" host="${mq.host}" username="${mq.username}" password="${mq.password}" 
+    						   port="${mq.port}" virtual-host="${mq.virtualHostVHB}" channel-cache-size="5" />  						   
+
+    <rabbit:admin connection-factory="connectionFactoryVHB" />
+    <!-- spring template声明-->
+    <rabbit:template exchange="VISAExchange" id="amqpTemplateVisaToESB"  connection-factory="connectionFactoryVHB" />
+    <rabbit:template exchange="ESBExchange" id="amqpTemplateEsb"  connection-factory="connectionFactoryVHB" />
+
+
+    <rabbit:queue id="VHBQ2" name="VISAToESBQueue" durable="true" auto-delete="false" exclusive="false" />
+    <rabbit:queue id="VHBQ3" name="ESBRqstQueue" durable="true" auto-delete="false" exclusive="false" />
+    <rabbit:queue id="VHBQ4" name="ESBRespQueue" durable="true" auto-delete="false" exclusive="false" />
+    <rabbit:queue id="VHBQ5" name="ESBToVISAQueue" durable="true" auto-delete="false" exclusive="false" />
+
+    
+    <!--申明exchange交换机并绑定queue-->
+    <rabbit:direct-exchange name="VISAExchange" durable="true" auto-delete="false" id="amqpExchangeVisaVHB">
+        <rabbit:bindings>
+            <rabbit:binding queue="VHBQ2" key="VISAToESB" />
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+
+    <rabbit:direct-exchange name="ESBExchange" durable="true" auto-delete="false" id="amqpExchangeEsbVHB">
+        <rabbit:bindings>
+            <rabbit:binding queue="VHBQ3" key="ESB_Request" />
+            <rabbit:binding queue="VHBQ4" key="ESB_Response" />
+            <rabbit:binding queue="VHBQ5" key="ESBToVISA" />
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+    
+    
+    <!--consumer配置监听-->
+   <bean id="Q2_Consumer" class="cn.com.syscom.inter.esbinterface.EsbConsumerQSecond" />
+   <bean id="Q3_Consumer" class="cn.com.syscom.inter.esbinterface.EsbTcpipQThird" />
+   <bean id="Q4_Consumer" class="cn.com.syscom.inter.esbinterface.EsbConsumerQFourth" />
+   <bean id="Q5_Consumer" class="cn.com.syscom.inter.visainterface.VisaConsumerQFifth" />
+<!--    <bean id="Q7_Consumer" class="cn.com.syscom.inter.visainterface.VisaConsumerQSeventh" /> -->
+   
+   <!-- concurrency="2" prefetch="3" -->
+ 	<rabbit:listener-container id ="messageListenerContainerVHB" connection-factory="connectionFactoryVHB" acknowledge="manual" concurrency="20" prefetch="10">
+        <rabbit:listener queues="VHBQ2" ref="Q2_Consumer"/>
+        <rabbit:listener queues="VHBQ3" ref="Q3_Consumer"/>
+        <rabbit:listener queues="VHBQ4" ref="Q4_Consumer"/>
+        <rabbit:listener queues="VHBQ5" ref="Q5_Consumer"/>
+    </rabbit:listener-container>
+</beans>

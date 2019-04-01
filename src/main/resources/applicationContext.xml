@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+        xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:task="http://www.springframework.org/schema/task"
+        xmlns:context="http://www.springframework.org/schema/context"
+        xmlns:aop="http://www.springframework.org/schema/aop"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+       http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+    
+    <context:component-scan base-package="cn.com.syscom.inter.**" />
+    <context:component-scan base-package="cn.com.syscom.iso8583.baffle" />
+    <context:component-scan base-package="cn.com.syscom.mcsp.service" />
+        
+    <context:property-placeholder ignore-unresolvable="true" location="classpath:mq.properties,Mybatis/db.properties,redis.properties" />
+   <!--  <context:property-placeholder ignore-unresolvable="true" location="file:config/mq.properties,file:config/Mybatis/db.properties" /> -->
+    
+    <import resource="application-mq.xml" />
+<!--     <import resource="application-mq-vhb1.xml" />
+    <import resource="application-mq-vhb2.xml" /> -->
+<!--     <import resource="redis-context.xml" />	 -->
+	
+	<bean id="isoMessageFactory" class="cn.com.syscom.iso8583.MessageFactory">
+		<property name="assignDate" value="true" />
+ 		<property name="characterEncoding" value="Cp1047" />
+		<property name="useBinaryBitmap" value="true" />
+		<property name="useBinaryMessages" value="true" />
+  	 	<property name="customFields"><map>
+		<entry key="62" value-ref="customField62"></entry>
+		<entry key="63" value-ref="customField63"></entry>
+		</map></property>
+		<property name="configPath" value="j8583_config.xml" />
+	</bean> 
+
+	<bean id="customField62" class="cn.com.syscom.iso8583.CustomField62"> 
+		<property name="deUseBinary" value="true" ></property>
+		<property name="deBinBitmap" value="true" ></property>
+		<property name="deEncoding" value="Cp1047" ></property>
+		<property name="enUseBinary" value="true" ></property>
+		<property name="enBinBitmap" value="true" ></property>
+		<property name="enEncoding" value="Cp1047" ></property>
+	</bean>
+	
+	<bean id="customField63" class="cn.com.syscom.iso8583.CustomField63"> 
+		<property name="deUseBinary" value="true" ></property>
+		<property name="deBinBitmap" value="true" ></property>
+		<property name="deEncoding" value="Cp1047" ></property>
+		<property name="enUseBinary" value="true" ></property>
+		<property name="enBinBitmap" value="true" ></property>
+		<property name="enEncoding" value="Cp1047" ></property>
+	</bean>
+	
+	
+	
+	<bean id="isoMessageFactoryCup" class="cn.com.syscom.inter.esbinterface.MessageFactoryCup">
+		<property name="assignDate" value="true" />
+ 		<property name="characterEncoding" value="GBK" />
+		<property name="useBinaryBitmap" value="true" />
+		<property name="useBinaryMessages" value="false" />
+<!--    	 	<property name="customFields"><map>
+		<entry key="63" value-ref="customField63Cup"></entry>
+		</map></property> -->
+		<property name="configPath" value="cup8583_config.xml" />
+	</bean>
+	
+ 	<bean id="customField63Cup" class="cn.com.syscom.iso8583.CustomField63"> 
+		<property name="deUseBinary" value="false" ></property>
+		<property name="deBinBitmap" value="true" ></property>
+		<property name="deEncoding" value="GBK" ></property>
+		<property name="enUseBinary" value="false" ></property>
+		<property name="enBinBitmap" value="true" ></property>
+		<property name="enEncoding" value="GBK" ></property>
+	</bean> 
+		
+	<bean id="iso8583Decoder" class="cn.com.syscom.iso8583.baffle.Iso8583Decoder">
+		<constructor-arg name = "messageFactory" ref = "isoMessageFactory" />
+		<constructor-arg name = "messageFactoryCup" ref = "isoMessageFactoryCup" />
+	</bean>
+	
+	<bean id="iso8583Encoder" class="cn.com.syscom.iso8583.baffle.Iso8583Encoder">
+		<constructor-arg name = "messageFactory" ref = "isoMessageFactory" />
+		<constructor-arg name = "lengthHeaderLength" value = "0" />
+	</bean> 
+	
+	<bean id="vtlf" class="cn.com.syscom.mysql.model.Vtlf"/>
+	<bean id="tps" class="cn.com.syscom.iso8583.util.TPS">
+		<constructor-arg name = "autoupdate" value = "false" />
+	</bean> 
+</beans>

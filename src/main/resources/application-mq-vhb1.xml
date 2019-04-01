@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context-3.0.xsd
+    http://www.springframework.org/schema/rabbit
+    http://www.springframework.org/schema/rabbit/spring-rabbit-1.0.xsd" >
+    
+    <description>rabbitmq 连接服务配置</description>
+
+    <rabbit:connection-factory id="connectionFactory" host="${mq.host}" username="${mq.username}" password="${mq.password}" 
+    						   port="${mq.port}" virtual-host="${mq.virtualHost}" channel-cache-size="5" />  						   
+
+    <rabbit:admin connection-factory="connectionFactory" />
+    <!-- spring template声明-->
+    <rabbit:template exchange="VISAExchange" id="amqpTemplateVisa"  connection-factory="connectionFactory" />
+	<rabbit:template exchange="ex.trans.monit" id="amqpTemplateMonit"  connection-factory="connectionFactory" />
+	
+    <!--申明queue-->
+    <rabbit:queue id="Q1" name="VISARqstQueue" durable="true" auto-delete="false" exclusive="false" />
+    <rabbit:queue id="Q7" name="VISARespQueue" durable="true" auto-delete="false" exclusive="false" />
+    <rabbit:queue id="trans.monit.queue" name="trans.monit.queue" durable="false" auto-delete="false" exclusive="false" />
+    
+    <!--申明exchange交换机并绑定queue-->
+    <rabbit:direct-exchange name="VISAExchange" durable="true" auto-delete="false" id="amqpExchangeVisa">
+        <rabbit:bindings>
+            <rabbit:binding queue="Q1" key="VISA_Request" />
+            <rabbit:binding queue="Q7" key="VISA_Response" />
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+
+    
+	<!--     交易监控交换机 -->
+    <rabbit:direct-exchange name="ex.trans.monit" durable="false" auto-delete="false" id="amqpExchangeMonit">
+        <rabbit:bindings>
+            <rabbit:binding queue="trans.monit.queue" key="key" />
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+
+    
+    <!--consumer配置监听-->
+   <bean id="Q1_Consumer" class="cn.com.syscom.inter.visainterface.VisaConsumerQFirst" />
+<!--    <bean id="Q7_Consumer" class="cn.com.syscom.inter.visainterface.VisaConsumerQSeventh" /> -->
+   
+   <!-- concurrency="2" prefetch="3" -->
+ 	<rabbit:listener-container id ="messageListenerContainer" connection-factory="connectionFactory" acknowledge="manual" concurrency="20" prefetch="10">
+        <rabbit:listener queues="Q1" ref="Q1_Consumer" />
+    </rabbit:listener-container>
+</beans>
